@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { notFound } from 'next/navigation';
 import {
   Search,
   TrendingUp,
@@ -273,10 +272,8 @@ const EMPTY_VARIANTS: EmptyStateVariant[] = [
    ═══════════════════════════════════════════════════════════════════════ */
 
 export default function PreviewPage() {
-  if (process.env.NODE_ENV !== 'development') {
-    notFound();
-  }
-
+  // 设计系统展示页，公开可见。若把本套件当作真实产品的基座，
+  // 可删除 src/app/(dev) 整组路由，或在此按需加访问控制。
   const [tab, setTab] = useState<'a' | 'b' | 'c'>('a');
   const [page, setPage] = useState(1);
   const { axisStyleX, axisStyleY, getChartColor } = useChartTheme();
