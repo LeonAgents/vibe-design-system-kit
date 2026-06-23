@@ -1,17 +1,11 @@
-# Vibe Design System Kit
+# Fixing the "AI Look": A Design System for Vibe Coders
+
+> Stop shipping eye-searing AI-generated UIs. A prompt-optimized `DESIGN_SYSTEM.md` spec and component library for AI coding.
 
 **English** · [简体中文](./README.zh-CN.md)
 
 [![CI](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-
-> **Give your AI one brand color. Get back a full design system that doesn't look "AI-made."**
-
-A portable, AI-friendly design system for **B2B web products you vibe-code** with Cursor / Claude Code / Codex. Drop it in, and your AI codes on-system from the first line — no more "AI-purple, mismatched-icons, off-spec-cards, 12px-body-text" look.
-
-You give it **one brand color**. It derives a complete, coherent theme: brand ramp, warm/cool neutrals, an 11-color chart palette, and shadcn/ui bridge tokens — all enforced by machine-readable agent rules so every screen stays on-system.
-
-> This repo's default theme — **Claude coral `#D97757`** — was itself generated from a single brand color with this exact pipeline. What you see is its output.
 
 ![Design system preview](docs/images/preview-default.png)
 
@@ -23,16 +17,26 @@ The same system, transformed by a single brand color — Claude coral (default),
 
 ---
 
-## Why this exists
+## The story
 
-When you vibe-code a B2B frontend, the painful part isn't getting code out — it's everything after:
+While vibe-coding, I kept hitting the same frontend problem: **AI-generated pages are just kind of ugly — and the less you constrain the model, the stronger the "AI look" gets.** Behind those tell-tale screens is a pile of basic, recurring UI mistakes:
 
-- **You re-fix the same mistakes on every screen.** Purple gradients again, emoji-as-icons again, 12px body text again. Fix one page, the AI repeats it on the next.
-- **It screams "AI-generated."** The same AI-purple, centered hero headings, oversized rounded cards — that cheap look quietly destroys credibility the moment you hand it to a client or your boss.
-- **It drifts the moment the project grows.** With no shared spec, colors, spacing, and radii get reinvented per file; the bigger it gets, the messier it looks.
-- **Re-skinning for a new client is a manual hunt-and-replace** across dozens of files — easy to miss spots, easy to break.
+- **Messy layout** — elements crammed together with no clear sections or alignment.
+- **No typography, just walls of text** — everything dumped flat, with no hierarchy, whitespace, or rhythm.
+- **Tiny body text** — 12px out of the box, exhausting to read for long.
+- **Inconsistent colors** — every part of the same product picks its own.
+- **Brand + accent colors that clash** — or just default to the signature "AI purple."
+- **No component reuse** — the same chart gets re-drawn on page after page, each one slightly different.
 
-This kit captures "design taste" as rules an AI can read and obey — fixing all of the above at the root.
+The root cause isn't that the AI *can't* — it's that **nobody gave it a spec it can read and obey.** This kit is that spec.
+
+## How it fixes it
+
+It turns "design taste" into something an AI can read and is forced to follow: a human-readable `DESIGN_SYSTEM.md`, machine rules in `AGENT_RULES.mdc`, and a set of design tokens and components. Drop it in, and the AI stays on-system from the first line — uses tokens, builds real hierarchy, hits minimum font sizes, keeps colors consistent, and reuses one component for the same chart everywhere.
+
+And **re-skinning takes a single brand color** — give it one, and it derives a complete, coherent theme: brand ramp, warm/cool neutrals, an 11-color chart palette, and shadcn/ui tokens.
+
+> This repo's default theme — **Claude coral `#D97757`** — was itself generated from one brand color with this exact pipeline. What you see is its output.
 
 ---
 
