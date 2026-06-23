@@ -7,7 +7,9 @@
 [![CI](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-![Design system preview](docs/images/preview-default.png)
+**▶ [Live demo](https://vibe-design-system-kit.vercel.app)** — explore every component and switch themes live.
+
+[![Design system preview](docs/images/preview-default.png)](https://vibe-design-system-kit.vercel.app)
 
 The same system, transformed by a single brand color — Claude coral (default), indigo, tech blue:
 
@@ -137,9 +139,11 @@ Requires Node ≥ 20.11 (`npm run tokens:build` uses Node's type-stripping and n
 
 ---
 
-## Deploy your own
+## Live demo & deploy
 
-One-click deploy the preview to Vercel:
+Live demo: **https://vibe-design-system-kit.vercel.app**
+
+One-click deploy your own copy to Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LeonAgents/vibe-design-system-kit)
 

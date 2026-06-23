@@ -7,7 +7,9 @@
 [![CI](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/LeonAgents/vibe-design-system-kit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-![设计系统预览](docs/images/preview-default.png)
+**▶ [在线 Demo](https://vibe-design-system-kit.vercel.app)** —— 浏览全部组件，顶部可实时切换主题。
+
+[![设计系统预览](docs/images/preview-default.png)](https://vibe-design-system-kit.vercel.app)
 
 同一套系统，仅换一个品牌色就完全变样——Claude 珊瑚（默认）、靛蓝、科技蓝：
 
@@ -137,9 +139,11 @@ Next.js 16 · React 19 · Tailwind CSS 4 · shadcn/ui · TypeScript · ECharts 6
 
 ---
 
-## 一键部署
+## 在线 Demo 与部署
 
-把预览页一键部署到 Vercel：
+在线 Demo：**https://vibe-design-system-kit.vercel.app**
+
+一键把你自己的副本部署到 Vercel：
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LeonAgents/vibe-design-system-kit)
 
