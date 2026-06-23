@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+tsconfig.tsbuildinfo
+.DS_Store
+.gstack/

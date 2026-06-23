@@ -1,0 +1,545 @@
+---
+description: Vibe portable design system rules — use when editing UI, themes, charts, styles, or shared components
+globs:
+  - "src/**/*.tsx"
+  - "src/**/*.ts"
+  - "src/**/*.css"
+  - "src/**/*.module.css"
+  - "app/**/*.tsx"
+  - "components/**/*.tsx"
+---
+
+# Vibe Portable Design System Rules
+
+Source of truth: `DESIGN_SYSTEM.md`.
+
+Use `design-tokens.css` as the initial token file. For complete human-readable details and historical traceability, read `DESIGN_SYSTEM.md` first.
+
+## Non-negotiable UI Rules
+
+- Product UI colors, typography, radius, spacing, shadows, overlays, links, component dimensions, and chart colors MUST use semantic theme tokens.
+- Do not hardcode product UI `hex`, `rgb`, `rgba`, `hsl`, `hsla`, `text-white`, legacy overlay classes, or legacy popup shadows in production UI.
+- Customer customization MUST be implemented through theme tokens and `themeId`; never add customer-specific style branches inside pages/components.
+- If existing tokens cannot express a semantic need, extend the theme contract and token mapping first.
+- External platform/logo identity colors are allowed only for official brand/logo recognition.
+
+## Design System Rules
+
+# Design System Rules
+
+> 单一权威来源：`DESIGN_SYSTEM.md`
+
+## Themes — ALWAYS use theme tokens, NEVER hardcode product styling
+
+Theme system is mandatory:
+- Source of truth: `DESIGN_SYSTEM.md`
+- Theme contract: `src/themes/types.ts`
+- Default theme: `src/themes/default.ts`
+- Theme registry and CSS variable mapping: `src/themes/registry.ts`
+- Runtime injection: `src/contexts/ThemeContext.tsx`
+- Tenant selection: `src/contexts/TenantContext.tsx` via `themeId`
+- Chart runtime colors: `src/components/charts/theme/chartTheme.ts` via `useChartTheme()`
+
+New features and pages MUST be theme-ready by default. Customer customization must be implemented by adding `src/themes/<theme-id>.ts`, registering it in `registry.ts`, and switching tenant `themeId`. Do not add customer-specific style branches in pages/components.
+
+Theme tokens cover colors, typography, radius, spacing, elevation/shadows, overlays, links, accents, component semantics, and shadcn/ui compatibility tokens. If an existing token cannot express a new semantic need, extend `AppTheme`, `themeToCssVariables()`, and all registered themes before using it in components.
+
+`npm run lint` runs `npm run theme:check`. New production UI code must pass this scan: no hardcoded product UI color literals, no `text-white`, no legacy overlay, no legacy popup shadow. Explicit exceptions are theme files, `globals.css` defaults, development preview pages, and official platform/logo identity colors.
+
+Shared default logo lives at `public/brand/logo.svg`. Settings-page uploads are browser-local previews only and must not be treated as committed tenant assets.
+
+Allowed exception: external brand/content identity colors, such as platform logos and official channel colors in `ChannelIcons`, may keep their own brand colors.
+
+### Core palette
+- Primary/Highlight: `var(--highlight)` → #4F46E5
+- Text strong (titles, KPI numbers, nav selected icon): `var(--text-strong)` → #1E1B39; at 6% for generic tag bg
+- Text regular (body, table cells, nav default text/icon): `var(--text-regular)` → #3D3A56
+- Text secondary (hints, labels, headers, icons, unselected checkbox): `var(--text-secondary)` → #6E6B8A
+- Text decorative (background only): `var(--text-decorative)` → #EEEEF7
+- Text disabled: `var(--text-disabled)` → #A5A3B8
+- Text inverse: `var(--text-inverse)` → #FFFFFF, used on dark/strong backgrounds
+- Border/divider: `var(--border-divider)` → #E4E3F0
+- Background primary: `var(--bg-primary)` → #F7F7FB
+- Background secondary (table headers): `var(--bg-secondary)` → #EEEEF6
+- Card background: `var(--bg-card)` → #FFFFFF
+- Card hover: `var(--bg-card-hover)` → #F3F2FA
+
+### Indicator colors
+- Up/growth: `var(--color-indicator-up)` (#D1595D)
+- Down/decline: `var(--color-indicator-down)` (#4A9E63)
+
+### Semantic colors (NOT generic red/green)
+- High risk: `var(--color-risk-high)` solid bg `#D1595D`, text `#FFFFFF`, pill radius, h28px, px16
+- Medium risk: `var(--color-risk-medium)` solid bg `#D6A84A`, text `#FFFFFF`, pill radius, h28px, px16
+- Low risk: `var(--color-risk-low)` solid bg `#6F8FC2`, text `#FFFFFF`, pill radius, h28px, px16
+- Success: `var(--color-success)`
+- Warning: `var(--color-warning)`
+- Danger/error: `var(--color-danger)` (intentionally distinct from brand blue)
+- Info: `var(--color-info)`
+
+### Sentiment colors
+- Positive: `var(--color-sentiment-positive)`; background with `color-mix(in srgb, var(--color-sentiment-positive) 20%, transparent)`
+- Neutral: `var(--color-sentiment-neutral)`; background with `color-mix(in srgb, var(--color-sentiment-neutral) 20%, transparent)`
+- Negative: `var(--color-sentiment-negative)`; background with `color-mix(in srgb, var(--color-sentiment-negative) 20%, transparent)`
+
+### Chart palette (use in order)
+#6366F1 → #8E89D6 → #6F8FC2 → #6AA9CF → #5FB0A6 → #74A883 → #A6BF86 → #D6B46A → #D68F6C → #C98AA7 → #A78BC7
+
+Use `--color-chart-{1..11}` variables. Auxiliary backgrounds: 5% opacity; borders: 10%.
+
+For ECharts/canvas, CSS variables may not resolve inside options. Use `useChartTheme()` to get runtime values for `chartTheme`, `axisStyleX`, `axisStyleY`, `getChartColor`, tooltip colors, gradients, and loading masks. Never hardcode hex/rgb/hsl inside ECharts option or tooltip HTML.
+
+## Typography
+
+### Font families
+- Chinese text: Inter (via `var(--font-sans)`)
+- English text: Roboto (via `var(--font-sans)`, second in stack)
+- Display text: via `var(--font-display)`
+- Data numbers (KPI, metrics): DIN Alternate (via `var(--font-data)`)
+
+### Platform heading sizes — ALL BOLD (weight 700)
+- 大标题: 24px / 700
+- 中标题: 20px / 700
+- 小标题: 18px / 700
+- 常规标题: 16px / 700
+
+### Platform body sizes — REGULAR (weight 400)
+- 正文: 14px / 400 (default)
+- 辅助正文: 14px / 400 (minimum readable body size)
+- 12px is restricted to tags, badges, chips, counters, and very short label forms only. Never use 12px for body copy, helper text, field names, links, table text, tooltip content, form errors, descriptions, or metadata.
+
+### Allowed font sizes (ONLY these)
+12 · 14 · 16 · 18 · 20 · 24 · 26 · 32 · 40 px
+
+### Allowed font weights
+400 (body) · 500 (labels, nav) · 600 (card titles) · 700 (headings, KPI numbers)
+
+### Data display rules
+- KPI big numbers: DIN Alternate, 40px, weight 700, color var(--text-strong)
+- Metric indicators: DIN Alternate, 18px, weight 700
+- Table header text: 14px, weight 500, color var(--text-secondary)
+- Table body text: 14px, weight 400, color var(--text-regular)
+
+## Spacing — 8px grid
+
+All spacing values must be multiples of 4px, preferring 8px multiples:
+4 · 8 · 16 · 24 · 32 · 48 · 64 · 96 px
+
+Data card internal spacing:
+- Title to border (top/left): 24px
+- Title to number: 24px
+- Label to number: 16px
+- Label to border (bottom/left): 24px
+
+## Components
+
+### Tags/Labels
+- Generic tag: bg `color-mix(in srgb, var(--text-strong) 6%, transparent)`, text `var(--text-secondary)`, 12px, height 24px, radius 4px, padding 0 8px
+- Topic tag: same but 12px text, height 20px
+- Risk tags: solid risk color bg, text `var(--text-inverse)` / `#FFFFFF`, 12px, height 28px, pill radius, padding 0 16px
+- Sentiment tags: sentiment color at 20% bg, matching sentiment token as text, 12px, height 28px, pill radius, padding 0 16px
+
+### Buttons
+- Primary: bg `var(--highlight)`, text `var(--highlight-foreground)`, radius `var(--component-button-radius)`
+- Standard height/padding: `var(--component-button-height)` / `var(--component-button-padding-x)`
+
+### Form/Input components
+- Height: `var(--component-input-height)`, bg `var(--bg-card)`, border `var(--border-divider)`, radius `var(--component-input-radius)`
+- Text: var(--text-regular) 14px; placeholder: var(--text-secondary) 14px
+- Focus/hover border: var(--highlight)
+- Dropdown icon: 16×16px
+- Multi-select tags: bg `var(--bg-control)`, radius 4px
+- Error text: `var(--color-danger)`, 14px
+
+### Tables
+- Header: bg var(--bg-secondary), border var(--border-divider), text var(--text-secondary) 14px
+- Body: bg `var(--bg-card)`, border `var(--border-divider)`, text `var(--text-regular)` 14px
+
+### Cards
+- Background: `var(--bg-card)`, border: `var(--border-divider)`, radius: `var(--component-card-radius)`
+- Padding/shadow: `var(--component-card-padding)`, `var(--component-card-shadow)`
+- Clickable card hover bg: var(--bg-card-hover) (#F3F2FA)
+
+### Floating Surfaces (Select / Popover / DropdownMenu / 图表 tooltip)
+Unified spec — only shadow lifts them, NO border:
+- radius `var(--component-popover-radius)` · bg `var(--bg-card)` · padding `var(--component-popover-padding)` · gap-2
+- shadow: `var(--component-popover-shadow)`
+- Implementation class:
+  `rounded-[var(--component-popover-radius)] bg-[var(--bg-card)] p-[var(--component-popover-padding)] shadow-[var(--component-popover-shadow)]`
+- ECharts tooltip: borderWidth 0 · radius and shadow should derive from chart/theme helpers
+- Sheet / Drawer / Dialog use `var(--overlay-scrim)`, `var(--component-modal-radius)`, and `var(--component-modal-shadow)`
+
+### Icon Sizing (small interactive icons)
+- Outer clickable wrapper: 16×16px
+- Inner lucide icon: 14×14px (size={14})
+- Applies to: InfoTooltip · RefreshStatusBadge · 类似行内点击图标
+
+### Tabs / SegmentedSwitcher
+- Container: bg `var(--bg-card)`, height 48px, radius 8px, border `var(--border-divider)`
+- Active: bg `var(--highlight)`, text `var(--highlight-foreground)`, 16px/500-700, radius 6-20px
+- Inactive: bg transparent, text var(--text-regular)
+- **Hover (non-active, non-disabled)**:
+  - pill 变体 → bg var(--bg-card-hover) + text var(--text-strong)
+  - underline 变体 → bg `color-mix(in srgb, var(--text-secondary) 6%, transparent)`
+  - Focus 同 hover（可达性）
+
+## shadcn/ui Components
+
+ALWAYS use shadcn/ui components from `@/components/ui/` for standard UI elements (Button, Select, Dialog, Table, Input, etc.). Customize via CSS variables and Tailwind classes, NEVER override component tokens inline.
+
+## Empty State
+
+- Use `EmptyState` from `@/components/shared/EmptyState`
+- 5 variants: no-search, no-creation, no-data, processing, error
+- 2 sizes: compact (200×130px), standard (400×280px)
+- Text: 14px, var(--text-secondary)
+
+## State / Hover conventions
+
+| Scenario | Token |
+|---|---|
+| Text/icon hover | switch to `var(--text-strong)` or `var(--highlight)` |
+| White card / pill hover bg | `var(--bg-card-hover)` (#F3F2FA) |
+| Tint hover on container-less surface | `color-mix(in srgb, var(--border-divider) 40%, transparent)` or `... var(--text-secondary) 6%, transparent` |
+| Persistent selected bg | `var(--bg-selected)` (#ECEAFD) |
+| Focus | mirror hover (keyboard a11y); optional 主色 20% outline |
+| Disabled | opacity 50%, cursor not-allowed |
+
+## ECharts v6 compatibility
+
+When a chart uses `yAxis.name` with `nameLocation: 'end'` AND top-positioned legend, MUST disable v6 anti-overlap:
+- `yAxis.nameMoveOverlap: false`
+- `grid.outerBoundsMode: 'none'` + bump `grid.top` to ≥ 64
+
+Otherwise the chart silently collapses (canvas renders blank). See DESIGN_SYSTEM.md §6.4.
+
+## Don'ts
+
+- NEVER hardcode product UI colors as hex/rgb/rgba/hsl — use semantic theme tokens
+- NEVER implement customer themes by editing page styles — add a theme and switch `themeId`
+- NEVER hardcode customer brand-related fonts, radius, spacing, shadows, overlays, or component dimensions — use theme tokens
+- NEVER hardcode colors in ECharts option or tooltip HTML — use `useChartTheme()` / `useAppTheme()`
+- NEVER duplicate shadcn/ui component theme tokens across files
+- NEVER use font sizes outside the allowed set
+- NEVER use 12px for body copy, helper text, field labels, links, tooltip content, form errors, table text, descriptions, or metadata; 12px is only for tags/badges/chips/counters/short labels
+- NEVER use font weights outside 400/500/600/700
+- NEVER use non-palette colors for charts
+- NEVER skip 24px internal padding on data cards
+- NEVER add `border` to floating surfaces (Select/Popover/Dropdown/Chart tooltip) — they rely on shadow only
+- NEVER use a different shadow recipe for popups — must be `var(--component-popover-shadow)`
+
+## Chart Component Rules
+
+# 图表组件库使用规范
+
+## 必读索引
+
+需要图表功能时，**先读** `src/components/charts/CATALOG.md` 了解可用组件和 Props。
+
+## 规则
+
+1. **必须从** `@/components/charts` 导入图表组件，**禁止**内联 SVG / CSS 模拟图表
+2. **禁止**安装其他图表库（如 recharts、chart.js、visx 等）
+3. **禁止**在组件外部直接构建 ECharts option 对象 — 使用预设组件的 Props 传入业务数据
+4. 如需高级定制，使用 `optionOverrides` prop 叠加配置
+5. 如需全新图表类型，在 `src/components/charts/` 创建新组件并更新 `CATALOG.md`
+
+## 快速查找
+
+| 需求 | 组件 |
+|------|------|
+| 折线图、趋势线、面积折线 | `ChartLine` |
+| 柱状图、条形图、堆叠柱状图 | `ChartBar` |
+| 环形图、饼图、占比图 | `ChartDonut` |
+| 雷达图、多维评估 | `ChartRadar` |
+| 词云、关键词 | `ChartWordCloud` |
+| 堆叠面积图、多分类趋势 | `ChartStackedArea` |
+| 迷你趋势线（表格/卡片内嵌） | `ChartMiniSparkline` |
+| 气泡图、散点图 | `ChartBubble` |
+| 漏斗图、转化漏斗 | `ChartFunnel` |
+| 桑基图、流向图 | `ChartSankey` |
+| 占比图、大号百分比 | `ChartProportion` |
+| 流程图、步骤流 | `ChartFlow` |
+| 自定义图表（高级） | `EChartsBase` |
+
+## 颜色规范
+
+- 图表配色统一使用 `CHART_COLORS` 11 色序列（来自 DESIGN_SYSTEM.md）
+- 双系列折线使用 `DUAL_SERIES_COLORS`（`#6366F1` + `#1E1B39`）
+- 取色使用 `getChartColor(index)` 确保循环安全
+- **禁止**在图表中硬编码颜色值
+
+## 示例
+
+```tsx
+import { ChartLine, ChartDonut } from '@/components/charts';
+
+<ChartLine
+  xData={dates}
+  series={[{ name: '数值', data: volumes }]}
+  showArea
+  unit="篇"
+/>
+
+<ChartDonut
+  data={sentimentData}
+  centerText="60%"
+/>
+```
+
+## SSR 注意
+
+ECharts 必须客户端渲染，所有图表组件已经在 `EChartsBase` 内部 dynamic import，自动跳过 SSR。如果你的页面是 Server Component，确保使用图表的子组件标记为 `'use client'`。
+
+## UI-Relevant Project Constraints
+
+# 项目约束规范
+
+> 不可违反的核心约束 + 默认遵守的标准 + 实现层灵活度。
+
+约束分三级：
+
+- **L0 宪法**：不可违反，违反即拒绝合并
+- **L1 规范**：默认遵守，特殊情况说明理由后可以例外
+- **L2 实现**：自由发挥，不限制具体写法
+
+---
+
+## L0 宪法（不可违反）
+
+### 技术栈版本
+
+版本以 `package.json` 为准，主要锁定：
+
+| 组件 | 版本 |
+|---|---|
+| Node | ≥ 20.x |
+| Next.js | 16.x |
+| React | 19.x |
+| TypeScript | 5.x（严格模式） |
+| Tailwind CSS | 4.x |
+| ClickHouse 客户端 | `@clickhouse/client` ≥ 1.x |
+
+### 目录结构（强制）
+
+```
+src/
+├── app/                   # Next.js App Router
+│   ├── api/features/      # 薄查询路由
+│   └── ...
+├── components/
+│   ├── ui/                # shadcn/ui
+│   ├── shared/            # 业务共享
+│   └── charts/            # 图表组件库
+├── hooks/                 # React hooks
+├── lib/
+│   └── clickhouse/        # 数据访问层（server-only）
+├── stores/                # zustand stores
+├── types/api/             # TS Type + Zod schema（前后端共用）
+└── data/                  # mock 数据
+```
+
+### 类型唯一真相源
+
+- 业务模型（DTO / Type / Schema）必须在 `src/types/api/` 定义
+- **禁止**在组件内重复定义已有的类型
+- 前后端共用同一份 Zod schema
+
+### 数据访问边界
+
+- ClickHouse 访问只能通过 `src/lib/clickhouse/`
+- `src/lib/clickhouse/**/*.ts` 文件首行**必须**：`import 'server-only';`
+- **禁止**在客户端组件 / 公开 API 暴露 ClickHouse client
+
+### 图表组件
+
+- 所有图表必须从 `@/components/charts` 导入
+- **禁止**安装其他图表库（recharts / chart.js / visx 等）
+- **禁止**内联 SVG / CSS 模拟图表
+- **禁止**在组件外构建 ECharts option（应通过预设组件 Props 传入业务数据）
+
+### API 响应包络（强制）
+
+成功：`{ ok: true; data: T; computed_at: string; data_version?: string }`
+失败：`{ ok: false; error: string; details?: unknown }`
+
+详见 `docs/specs/shared/api-standards.md`。
+
+### 设计规范（强制）
+
+- **永远使用 CSS 变量**：`var(--highlight)` 等，**禁止硬编码 hex**
+- **字号白名单**：仅允许 12 / 14 / 16 / 18 / 20 / 24 / 26 / 32 / 40px；12px 仅用于标签 / 徽标 / chip，常规文本最小 14px
+- **字重白名单**：仅允许 400 / 500 / 600 / 700
+- **间距**：8px 网格（4 / 8 / 16 / 24 / 32 / 48）
+
+详见 `DESIGN_SYSTEM.md`。
+
+### 语言约束
+
+- **UI 文案使用中文**（不上 i18n 框架）
+- 代码标识符（变量 / 函数 / 组件）**使用英文**
+- Commit message subject **使用英文**（Conventional Commits）
+
+> 与 demo_pod 的"全英文 UI"L0 强制不同：本项目面向中国市场，UI 直接中文。
+
+---
+
+## L1 规范（默认遵守）
+
+### 命名规范
+
+| 类型 | 规则 | 示例 |
+|---|---|---|
+| 组件 / 类名 | PascalCase | `UserProfile` |
+| 文件 / 函数 | camelCase | `getUserInfo` |
+| 常量 | UPPER_SNAKE | `MAX_RETRY` |
+| CSS 类 | kebab-case | `.user-avatar` |
+| Hook | use 前缀 | `useAuth` |
+| 布尔变量 | is / has / can 前缀 | `isActive` / `hasPermission` |
+
+### 文件后缀
+
+| 类型 | 后缀 |
+|---|---|
+| React 组件 | `.tsx` |
+| TypeScript 类型 / 纯逻辑 | `.ts` |
+| CSS Modules | `.module.css` |
+| 测试 | `.test.ts` / `.test.tsx` |
+| Server Action | `.ts`（顶部 `'use server'`） |
+
+### Git 提交
+
+- 使用 Conventional Commits 格式：`<type>(<scope>): <subject>`
+- Subject 使用英文，祈使语气
+- 详见 `.cursor/rules/git.md`
+
+### 错误处理
+
+- API 路由统一使用 `error-codes.md` 中定义的错误码
+- 不暴露内部错误细节给客户端（开发环境例外）
+
+---
+
+## L2 实现（自由）
+
+### 自由发挥
+
+以下范围内，开发者可自由选择：
+
+- 组件内部状态管理方式（useState / useReducer）
+- 样式实现细节（Tailwind utility / CSS Modules / 内联）
+- 业务算法实现
+- UI 交互细节（动画时长在规范内即可）
+- 组件拆分粒度
+
+### 限制
+
+- 不要引入新依赖（如需引入先在 PR 中讨论）
+- 不要破坏接口契约（修改 `src/types/api/*` 必须同步契约文档 + 灰度 data_version）
+- 不要修改 `feature_*` 表的字段结构（数据团队配合）
+
+---
+
+## 违反后果
+
+| 级别 | 处理 |
+|---|---|
+| L0 违反 | PR 必须重写后才能合并 |
+| L1 违反 | Reviewer 要求修改，特殊情况经讨论可豁免 |
+| L2 违反 | 通常无问题（除非偏离合理范围） |
+
+## Code Style Notes
+
+# 代码风格
+
+---
+
+## 注释原则
+
+- 注释说明 **"为什么"**，不是"是什么"
+- 复杂业务逻辑 / 非显然的取舍 / 历史包袱原因需要注释
+- 简单代码不需要注释
+
+```typescript
+// ❌ 不好：设置用户状态为 1
+user.status = 1;
+
+// ✅ 好：激活用户以允许后续登录操作
+user.status = 1;
+```
+
+## 函数设计
+
+- 单一职责，合理长度（建议 < 50 行）
+- 函数参数不超过 3 个，超过时用对象参数
+- 避免深层嵌套（> 3 层考虑提前 return）
+
+## 错误处理
+
+- 提供有意义的错误信息
+- 避免暴露敏感内容（数据库连接、密钥、堆栈）
+- 使用项目统一的错误码体系（见 `docs/specs/shared/error-codes.md`）
+- 生产环境不要把 stack trace 返给客户端
+
+## 命名规范
+
+| 类型 | 规则 | 示例 |
+|------|------|------|
+| 组件 / 类名 | PascalCase | `UserProfile` |
+| 文件 / 函数 | camelCase | `getUserInfo` |
+| 常量 | UPPER_SNAKE | `MAX_RETRY` |
+| CSS 类 | kebab-case | `.user-avatar` |
+| Hook | use 前缀 | `useAuth` |
+| 布尔变量 | is / has / can 前缀 | `isActive` / `hasPermission` |
+| 文件名 | kebab-case（多词） / camelCase（单词） | `user-profile.tsx` / `Button.tsx`（组件用 PascalCase 文件名也可） |
+
+## TypeScript 风格
+
+- 严格模式（`tsconfig.json` 中 `"strict": true`）
+- 优先 `type` 而非 `interface`（除非需要 declaration merging）
+- 必要时使用 `unknown` 而非 `any`
+- 函数返回值显式类型（特别是导出的函数）
+- 联合类型 + 判别字段（`{ ok: true; data } | { ok: false; error }`）
+
+## React 风格
+
+- 优先 Server Components（默认行为）
+- 客户端组件明确标 `'use client'` 在文件首行
+- 状态尽量上提，避免 prop drilling 用 Context 或 zustand
+- `useEffect` 慎用，能用 derived state 就别 effect
+- 列表 key 不要用 index，用稳定 ID
+
+## CSS / Tailwind 风格
+
+- 颜色统一 CSS 变量（不要写 `#4F46E5` / `#6366F1` 等产品色）
+- 间距用 8px 网格（不要写 `gap-[7px]`）
+- 优先 Tailwind utility class，复杂样式用 CSS Modules
+- 组件级样式不要污染全局
+
+## 导入顺序
+
+```ts
+// 1. 第三方
+import { useState } from 'react';
+import clsx from 'clsx';
+
+// 2. 项目内
+import { Button } from '@/components/ui/button';
+import { useFeatureData } from '@/hooks/useFeatureData';
+
+// 3. 类型
+import type { RankScorePayload } from '@/types/api/rank-score';
+
+// 4. 样式（如有 CSS Modules）
+import styles from './styles.module.css';
+```
+
+## 文件后缀
+
+| 类型 | 后缀 |
+|------|------|
+| React 组件 | `.tsx` |
+| TypeScript 类型 / 逻辑 | `.ts` |
+| CSS Modules | `.module.css` |
+| 测试 | `.test.ts` / `.test.tsx` |
+| Server Action | `.ts`（标记 `'use server'`） |
